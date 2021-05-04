@@ -1,0 +1,33 @@
+name: create-build-occurrence
+author: rode@liatrio.com
+description: Creates a build occurrence in Rode
+branding:
+  icon: anchor
+  color: green
+
+runs:
+  using: docker
+  image: Dockerfile
+  env:
+    BUILD_COLLECTOR_HOST: ${{ inputs.buildCollectorHost }}
+    BUILD_COLLECTOR_INSECURE: ${{ inputs.buildCollectorInsecure }}
+    DEBUG: ${{ inputs.debug }}
+
+inputs:
+  buildCollectorHost:
+    description: "The build collector hostname"
+    required: true
+  buildCollectorInsecure:
+    description: "Insecure"
+    required: false
+    default: false
+  debug:
+    description: "Print debug logs"
+    required: false
+    default: false
+  artifactId:
+    description: "The identifier of the created artifact"
+    required: true
+outputs:
+  id:
+    description: The build occurrence id
