@@ -13,7 +13,7 @@ runs:
     BUILD_COLLECTOR_HOST: ${{ inputs.buildCollectorHost }}
     BUILD_COLLECTOR_INSECURE: ${{ inputs.buildCollectorInsecure }}
     DEBUG: ${{ inputs.debug }}
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    GITHUB_TOKEN: ${{ inputs.github_token }}
 
 inputs:
   buildCollectorHost:
@@ -30,6 +30,10 @@ inputs:
   artifactId:
     description: "The identifier of the created artifact"
     required: true
+  githubToken:
+    description: "GitHub token"
+    required: true
+
 outputs:
   id:
     description: The build occurrence id
