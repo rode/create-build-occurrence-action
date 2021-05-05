@@ -13,6 +13,7 @@ runs:
     BUILD_COLLECTOR_HOST: ${{ inputs.buildCollectorHost }}
     BUILD_COLLECTOR_INSECURE: ${{ inputs.buildCollectorInsecure }}
     DEBUG: ${{ inputs.debug }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 inputs:
   buildCollectorHost:
