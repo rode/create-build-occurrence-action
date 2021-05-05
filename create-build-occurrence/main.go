@@ -5,11 +5,15 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/google/go-github/v35/github"
 	collector "github.com/rode/collector-build/proto/v1alpha1"
 	"github.com/sethvargo/go-envconfig"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -25,8 +29,9 @@ type githubConfig struct {
 	CommitId  string `env:"SHA,required"`
 	JobId     string `env:"JOB,required"`
 	RepoSlug  string `env:"REPOSITORY,required"`
-	RunId     int `env:"RUN_ID,required"`
+	RunId     int64  `env:"RUN_ID,required"`
 	ServerUrl string `env:"SERVER_URL,required"`
+	Token     string `env:"TOKEN,required"`
 }
 
 type config struct {
@@ -66,8 +71,24 @@ func newLogger(c *config) (*zap.Logger, error) {
 	return loggerConfig.Build()
 }
 
+func newGitHubClient(c *config) *github.Client {
+	tokenSource := oauth2.StaticTokenSource(
+		&oauth2.Token{
+			AccessToken: c.GitHub.Token,
+		},
+	)
+
+	return github.NewClient(oauth2.NewClient(context.Background(), tokenSource))
+}
+
 func setOutputVariable(name, value string) {
 	fmt.Printf("::set-output name=%s::%s", name, value)
+}
+
+func getRepoAndOwnerFromSlug(slug string) (string, string) {
+	parts := strings.Split(slug, "/")
+
+	return parts[0], parts[1]
 }
 
 func main() {
@@ -85,25 +106,43 @@ func main() {
 	conn, client := newBuildCollectorClient(&c)
 	defer conn.Close()
 
-	logger.Debug("start", zap.Any("config", c))
+	githubClient := newGitHubClient(&c)
+	owner, repo := getRepoAndOwnerFromSlug(c.GitHub.RepoSlug)
 
-	repoUrl := fmt.Sprintf("%s/%s", c.GitHub.ServerUrl, c.GitHub.RepoSlug)
-	workflowId := fmt.Sprintf("%s/actions/runs/%d", repoUrl, c.GitHub.RunId)
-	logsUri := fmt.Sprintf("%s/commit/%s/checks/%s/logs", repoUrl, c.GitHub.CommitId, c.GitHub.JobId)
+	jobs, _, err := githubClient.Actions.ListWorkflowJobs(ctx, owner, repo, c.GitHub.RunId, &github.ListWorkflowJobsOptions{})
+	if err != nil {
+		logger.Fatal("error listing jobs", zap.Error(err))
+	}
+
+	var job *github.WorkflowJob
+	for _, j := range jobs.Jobs {
+		if j.GetName() == c.GitHub.JobId {
+			job = j
+			break
+		}
+	}
+	if job == nil {
+		logger.Fatal("Unable to find job")
+	}
+
+	repoUri := fmt.Sprintf("%s/%s", c.GitHub.ServerUrl, c.GitHub.RepoSlug)
+	commitUri := fmt.Sprintf("%s/commit/%s", repoUri, c.GitHub.CommitId)
+	logsUri := fmt.Sprintf("%s/checks/%d/logs", commitUri, job.GetID())
 
 	request := &collector.CreateBuildRequest{
-		Repository: repoUrl,
 		Artifacts: []*collector.Artifact{
 			{
 				Id: c.ArtifactId,
 			},
 		},
+		BuildStart:   timestamppb.New(job.GetStartedAt().Time),
+		BuildEnd:     timestamppb.Now(),
 		CommitId:     c.GitHub.CommitId,
-		ProvenanceId: workflowId,
-		LogsUri:      logsUri,
+		CommitUri:    commitUri,
 		Creator:      c.GitHub.Actor,
-		//BuildStart:   nil,
-		//BuildEnd:     nil,
+		LogsUri:      logsUri,
+		ProvenanceId: job.GetHTMLURL(),
+		Repository:   repoUri,
 	}
 	logger.Info("sending request to build collector", zap.Any("request", request))
 	response, err := client.CreateBuild(ctx, request)
