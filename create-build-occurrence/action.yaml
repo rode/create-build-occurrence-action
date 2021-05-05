@@ -9,6 +9,7 @@ runs:
   using: docker
   image: Dockerfile
   env:
+    ARTIFACT_ID: ${{ inputs.artifactId }}
     BUILD_COLLECTOR_HOST: ${{ inputs.buildCollectorHost }}
     BUILD_COLLECTOR_INSECURE: ${{ inputs.buildCollectorInsecure }}
     DEBUG: ${{ inputs.debug }}
