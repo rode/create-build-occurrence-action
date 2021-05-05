@@ -23,7 +23,7 @@ type buildCollectorConfig struct {
 type githubConfig struct {
 	Actor     string `env:"ACTOR,required"`
 	CommitId  string `env:"SHA,required"`
-	JobId     int `env:"JOB,required"`
+	JobId     string `env:"JOB,required"`
 	RepoSlug  string `env:"REPOSITORY,required"`
 	RunId     int `env:"RUN_ID,required"`
 	ServerUrl string `env:"SERVER_URL,required"`
@@ -89,7 +89,7 @@ func main() {
 
 	repoUrl := fmt.Sprintf("%s/%s", c.GitHub.ServerUrl, c.GitHub.RepoSlug)
 	workflowId := fmt.Sprintf("%s/actions/runs/%d", repoUrl, c.GitHub.RunId)
-	logsUri := fmt.Sprintf("%s/commit/%s/checks/%d/logs", repoUrl, c.GitHub.CommitId, c.GitHub.JobId)
+	logsUri := fmt.Sprintf("%s/commit/%s/checks/%s/logs", repoUrl, c.GitHub.CommitId, c.GitHub.JobId)
 
 	request := &collector.CreateBuildRequest{
 		Repository: repoUrl,
