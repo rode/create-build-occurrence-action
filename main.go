@@ -106,7 +106,7 @@ func fatal(message string) {
 
 func main() {
 	ctx := context.Background()
-	var c *config
+	c := &config{}
 	if err := envconfig.Process(ctx, c); err != nil {
 		fatal(fmt.Sprintf("unable to build config: %s", err))
 	}
