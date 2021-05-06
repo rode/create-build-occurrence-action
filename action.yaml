@@ -1,0 +1,45 @@
+name: create-build-occurrence
+author: rode@liatrio.com
+description: Creates a build occurrence in Rode
+branding:
+  icon: anchor
+  color: green
+
+runs:
+  using: docker
+  image: Dockerfile
+  env:
+    ARTIFACT_ID: ${{ inputs.artifactId }}
+    ARTIFACT_NAMES: ${{ inputs.artifactNames }}
+    ARTIFACT_NAMES_DELIMITER: ${{ inputs.artifactNamesDelimiter }}
+    BUILD_COLLECTOR_HOST: ${{ inputs.buildCollectorHost }}
+    BUILD_COLLECTOR_INSECURE: ${{ inputs.buildCollectorInsecure }}
+    DEBUG: ${{ inputs.debug }}
+    GITHUB_TOKEN: ${{ inputs.githubToken }}
+
+inputs:
+  artifactId:
+    description: "The identifier of the created artifact"
+    required: true
+  artifactNames:
+    description: "A list of alternative names for the artifact. If using Docker, these are any additional tags"
+    required: false
+    default: ""
+  artifactNamesDelimiter:
+    description: "Used to separate artifactNames"
+    required: false
+    default: "\n"
+  buildCollectorHost:
+    description: "The build collector hostname"
+    required: true
+  buildCollectorInsecure:
+    description: "When set, the connection to the build collector will not use TLS"
+    required: false
+    default: 'false'
+  githubToken:
+    description: "GitHub token used to pull information about the workflow and job"
+    required: true
+
+outputs:
+  id:
+    description: The build occurrence id
