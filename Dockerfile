@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o action
 # ---------------
 FROM gcr.io/distroless/static:latest
 
-LABEL org.opencontainers.image.source=https://github.com/rode/github-actions/create-build-occurrence
+LABEL org.opencontainers.image.source=https://github.com/rode/create-build-occurrence-action
 
 COPY --from=builder /workspace/action /usr/local/bin/action
 
