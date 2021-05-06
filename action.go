@@ -96,8 +96,18 @@ func buildArtifact(c *config) *collector.Artifact {
 		Id: c.ArtifactId,
 	}
 
-	if len(c.ArtifactNames) > 0 {
-		artifact.Names = strings.Split(c.ArtifactNames, c.ArtifactNamesDelimiter)
+	if len(c.ArtifactNames) == 0 {
+		return artifact
+	}
+
+	names := strings.Split(c.ArtifactNames, c.ArtifactNamesDelimiter)
+	for _, name := range names {
+		name = strings.TrimSpace(name)
+		if len(name) == 0 {
+			continue
+		}
+
+		artifact.Names = append(artifact.Names, name)
 	}
 
 	return artifact

@@ -168,6 +168,21 @@ var _ = Describe("createBuildOccurrenceAction", func() {
 					Expect(actualRequest.Artifacts[0].Names).To(ConsistOf(expectedArtifactNames))
 				})
 			})
+
+			When("there is whitespace in the artifact names", func() {
+				BeforeEach(func() {
+					artifactNames := []string{fake.Word(), fake.Word()+"\n", ""}
+
+					conf.ArtifactNamesDelimiter = "\n"
+					conf.ArtifactNames = strings.Join(artifactNames, "\n")
+				})
+
+				It("should strip the whitespace", func() {
+					_, actualRequest, _ := client.CreateBuildArgsForCall(0)
+
+					Expect(actualRequest.Artifacts[0].Names).To(HaveLen(2))
+				})
+			})
 		})
 
 		When("an error occurs listing jobs", func() {
