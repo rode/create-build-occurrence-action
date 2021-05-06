@@ -4,6 +4,7 @@ dockers:
       - "ghcr.io/rode/create-build-occurrence-action:latest"
       - "ghcr.io/rode/create-build-occurrence-action:{{ .Tag }}"
       - "ghcr.io/rode/create-build-occurrence-action:v{{ .Major }}"
+      - "ghcr.io/rode/create-build-occurrence-action:v{{ .Major }}.{{ .Minor }}"
     extra_files:
       - "go.mod"
       - "go.sum"
