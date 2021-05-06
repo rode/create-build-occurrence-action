@@ -1,4 +1,3 @@
-# syntax = docker/dockerfile:experimental
 FROM golang:1.16-alpine as builder
 
 WORKDIR /workspace
@@ -9,7 +8,7 @@ RUN go mod download
 
 COPY main.go main.go
 
-RUN --mount=type=cache,target=/root/.cache/go-build CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o action
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o action
 
 # ---------------
 FROM gcr.io/distroless/static:latest
