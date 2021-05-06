@@ -2,7 +2,6 @@ FROM golang:1.16-alpine as builder
 
 WORKDIR /workspace
 
-RUN apk add --no-cache git
 COPY go.mod go.sum /workspace/
 RUN go mod download
 
