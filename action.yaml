@@ -7,7 +7,7 @@ branding:
 
 runs:
   using: docker
-  image: Dockerfile
+  image: docker://ghcr.io/rode/create-build-occurrence-action:latest
   env:
     ARTIFACT_ID: ${{ inputs.artifactId }}
     ARTIFACT_NAMES: ${{ inputs.artifactNames }}
