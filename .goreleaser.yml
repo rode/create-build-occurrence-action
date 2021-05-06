@@ -1,0 +1,21 @@
+project_name: create-build-occurrence-action
+dockers:
+  - image_templates:
+      - "ghcr.io/rode/create-build-occurrence-action:latest"
+      - "ghcr.io/rode/create-build-occurrence-action:{{ .Tag }}"
+      - "ghcr.io/rode/create-build-occurrence-action:v{{ .Major }}"
+    extra_files:
+      - "go.mod"
+      - "go.sum"
+      - "main.go"
+      - "action.go"
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
