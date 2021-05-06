@@ -171,7 +171,7 @@ var _ = Describe("createBuildOccurrenceAction", func() {
 
 			When("there is whitespace in the artifact names", func() {
 				BeforeEach(func() {
-					artifactNames := []string{fake.Word(), fake.Word()+"\n", ""}
+					artifactNames := []string{fake.Word(), fake.Word() + "\n", ""}
 
 					conf.ArtifactNamesDelimiter = "\n"
 					conf.ArtifactNames = strings.Join(artifactNames, "\n")
