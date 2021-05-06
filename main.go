@@ -51,7 +51,6 @@ type config struct {
 	ArtifactNames          string                `env:"ARTIFACT_NAMES"`
 	ArtifactNamesDelimiter string                `env:"ARTIFACT_NAMES_DELIMITER,required"`
 	BuildCollector         *buildCollectorConfig `env:",prefix=BUILD_COLLECTOR_"`
-	Debug                  bool                  `env:"DEBUG"`
 	GitHub                 *githubConfig         `env:",prefix=GITHUB_"`
 }
 
@@ -75,14 +74,8 @@ func newBuildCollectorClient(c *config) (*grpc.ClientConn, collector.BuildCollec
 	return conn, collector.NewBuildCollectorClient(conn)
 }
 
-func newLogger(c *config) (*zap.Logger, error) {
-	loggerConfig := zap.NewDevelopmentConfig()
-
-	if !c.Debug {
-		loggerConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
-	}
-
-	return loggerConfig.Build()
+func newLogger() (*zap.Logger, error) {
+	return zap.NewDevelopment()
 }
 
 func newGitHubClient(c *config) *github.Client {
@@ -111,7 +104,7 @@ func main() {
 		fatal(fmt.Sprintf("unable to build config: %s", err))
 	}
 
-	logger, err := newLogger(c)
+	logger, err := newLogger()
 	if err != nil {
 		fatal(fmt.Sprintf("failed to create logger: %s", err))
 	}

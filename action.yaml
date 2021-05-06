@@ -10,19 +10,14 @@ runs:
   image: Dockerfile
   env:
     ARTIFACT_ID: ${{ inputs.artifactId }}
+    ARTIFACT_NAMES: ${{ inputs.artifactNames }}
+    ARTIFACT_NAMES_DELIMITER: ${{ inputs.artifactNamesDelimiter }}
     BUILD_COLLECTOR_HOST: ${{ inputs.buildCollectorHost }}
     BUILD_COLLECTOR_INSECURE: ${{ inputs.buildCollectorInsecure }}
     DEBUG: ${{ inputs.debug }}
     GITHUB_TOKEN: ${{ inputs.githubToken }}
 
 inputs:
-  buildCollectorHost:
-    description: "The build collector hostname"
-    required: true
-  buildCollectorInsecure:
-    description: "When set, the connection to the build collector will not use TLS"
-    required: false
-    default: 'false'
   artifactId:
     description: "The identifier of the created artifact"
     required: true
@@ -34,7 +29,13 @@ inputs:
     description: "Used to separate artifactNames"
     required: false
     default: "\n"
-
+  buildCollectorHost:
+    description: "The build collector hostname"
+    required: true
+  buildCollectorInsecure:
+    description: "When set, the connection to the build collector will not use TLS"
+    required: false
+    default: 'false'
   githubToken:
     description: "GitHub token used to pull information about the workflow and job"
     required: true
