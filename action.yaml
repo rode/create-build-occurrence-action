@@ -18,6 +18,9 @@ runs:
     GITHUB_TOKEN: ${{ inputs.githubToken }}
 
 inputs:
+  accessToken:
+    description: "An access token that will be included in requests to the build collector."
+    required: false
   artifactId:
     description: "The identifier of the created artifact"
     required: true
