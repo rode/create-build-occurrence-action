@@ -9,6 +9,7 @@ runs:
   using: docker
   image: docker://ghcr.io/rode/create-build-occurrence-action:latest
   env:
+    ACCESS_TOKEN: ${{ inputs.accessToken }}
     ARTIFACT_ID: ${{ inputs.artifactId }}
     ARTIFACT_NAMES: ${{ inputs.artifactNames }}
     ARTIFACT_NAMES_DELIMITER: ${{ inputs.artifactNamesDelimiter }}
