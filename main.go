@@ -47,11 +47,27 @@ type githubConfig struct {
 }
 
 type config struct {
+	AccessToken            string                `env:"ACCESS_TOKEN"`
 	ArtifactId             string                `env:"ARTIFACT_ID,required"`
 	ArtifactNames          string                `env:"ARTIFACT_NAMES"`
 	ArtifactNamesDelimiter string                `env:"ARTIFACT_NAMES_DELIMITER,required"`
 	BuildCollector         *buildCollectorConfig `env:",prefix=BUILD_COLLECTOR_"`
 	GitHub                 *githubConfig         `env:",prefix=GITHUB_"`
+}
+
+type staticCredential struct {
+	token                    string
+	requireTransportSecurity bool
+}
+
+func (s *staticCredential) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
+	return map[string]string{
+		"authorization": "Bearer " + s.token,
+	}, nil
+}
+
+func (s *staticCredential) RequireTransportSecurity() bool {
+	return s.requireTransportSecurity
 }
 
 func newBuildCollectorClient(c *config) (*grpc.ClientConn, collector.BuildCollectorClient) {
@@ -62,6 +78,13 @@ func newBuildCollectorClient(c *config) (*grpc.ClientConn, collector.BuildCollec
 		dialOptions = append(dialOptions, grpc.WithInsecure())
 	} else {
 		dialOptions = append(dialOptions, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	}
+
+	if c.AccessToken != "" {
+		dialOptions = append(dialOptions, grpc.WithPerRPCCredentials(&staticCredential{
+			token:                    c.AccessToken,
+			requireTransportSecurity: !c.BuildCollector.Insecure,
+		}))
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
