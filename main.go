@@ -73,6 +73,7 @@ func (s *staticCredential) RequireTransportSecurity() bool {
 func newBuildCollectorClient(c *config) (*grpc.ClientConn, collector.BuildCollectorClient) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithBlock(),
+		grpc.FailOnNonTempDialError(true),
 	}
 	if c.BuildCollector.Insecure {
 		dialOptions = append(dialOptions, grpc.WithInsecure())
@@ -91,7 +92,7 @@ func newBuildCollectorClient(c *config) (*grpc.ClientConn, collector.BuildCollec
 	defer cancel()
 	conn, err := grpc.DialContext(ctx, c.BuildCollector.Host, dialOptions...)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Unable to connect to build collector: %v", err)
 	}
 
 	return conn, collector.NewBuildCollectorClient(conn)
